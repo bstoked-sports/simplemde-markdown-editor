@@ -1,7 +1,7 @@
 /**
  * simplemde v1.11.2
  * Copyright Next Step Webs, Inc.
- * @link https://github.com/NextStepWebs/simplemde-markdown-editor
+ * @link https://github.com/sparksuite/simplemde-markdown-editor
  * @license MIT
  */
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SimpleMDE = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
@@ -1986,7 +1986,7 @@ module.exports = CodeMirrorSpellChecker;
 
   function setNormal(cm) {
     var wrap = cm.getWrapperElement();
-    wrap.className = wrap.className.replace(/\s*CodeMirror-fullscreen\b/, "");
+    wrap.className = wrap.className.replace(/\s*fullscreen\b/, "");  // bstoked
     document.documentElement.style.overflow = "";
     var info = cm.state.fullScreenRestore;
     wrap.style.width = info.width; wrap.style.height = info.height;
@@ -15010,6 +15010,7 @@ var isMac = /Mac/.test(navigator.platform);
 var bindings = {
 	"toggleBold": toggleBold,
 	"toggleItalic": toggleItalic,
+	"toggleUnderline": toggleUnderline,
 	"drawLink": drawLink,
 	"toggleHeadingSmaller": toggleHeadingSmaller,
 	"toggleHeadingBigger": toggleHeadingBigger,
@@ -15035,6 +15036,7 @@ var bindings = {
 var shortcuts = {
 	"toggleBold": "Cmd-B",
 	"toggleItalic": "Cmd-I",
+	"toggleUnderline": "Cmd-U",
 	"drawLink": "Cmd-K",
 	"toggleHeadingSmaller": "Cmd-H",
 	"toggleHeadingBigger": "Shift-Cmd-H",
@@ -15139,6 +15141,8 @@ function getState(cm, pos) {
 		data = types[i];
 		if(data === "strong") {
 			ret.bold = true;
+		} else if (data === "u") {
+			ret.underline = true;
 		} else if(data === "variable-2") {
 			text = cm.getLine(pos.line);
 			if(/^\s*\d+\.\s/.test(text)) {
@@ -15221,6 +15225,13 @@ function toggleFullScreen(editor) {
  */
 function toggleBold(editor) {
 	_toggleBlock(editor, "bold", editor.options.blockStyles.bold);
+}
+
+/**
+ * Action for toggling underline.
+ */
+function toggleUnderline(editor) {
+	_toggleBlock(editor, "underline", editor.options.blockStyles.underline[0], editor.options.blockStyles.underline[1]);
 }
 
 
@@ -15937,7 +15948,10 @@ function _toggleBlock(editor, type, start_chars, end_chars) {
 		text = cm.getLine(startPoint.line);
 		start = text.slice(0, startPoint.ch);
 		end = text.slice(startPoint.ch);
-		if(type == "bold") {
+		if (type == "underline") {
+			start = start.replace(/(<u>)(?![\s\S]*(<\/u>))/, "");
+			end = end.replace(/(<\/u>)/, "");
+		} else if (type == "bold") {
 			start = start.replace(/(\*\*|__)(?![\s\S]*(\*\*|__))/, "");
 			end = end.replace(/(\*\*|__)/, "");
 		} else if(type == "italic") {
@@ -15965,6 +15979,11 @@ function _toggleBlock(editor, type, start_chars, end_chars) {
 			if(startPoint !== endPoint) {
 				endPoint.ch -= 1;
 			}
+		} else if (type == "underline") {
+			startPoint.ch -= 3;
+			if (startPoint !== endPoint) {
+				endPoint.ch -= 4;
+			}
 		}
 	} else {
 		text = cm.getSelection();
@@ -15974,6 +15993,9 @@ function _toggleBlock(editor, type, start_chars, end_chars) {
 		} else if(type == "italic") {
 			text = text.split("*").join("");
 			text = text.split("_").join("");
+		} else if (type == "underline") {
+			text = text.split("<u>").join("");
+			text = text.split("</u>").join("");
 		} else if(type == "strikethrough") {
 			text = text.split("~~").join("");
 		}
@@ -16059,58 +16081,66 @@ var toolbarBuiltInButtons = {
 	"bold": {
 		name: "bold",
 		action: toggleBold,
-		className: "fa fa-bold",
+		className: "bs bs-bold",
 		title: "Bold",
 		default: true
 	},
 	"italic": {
 		name: "italic",
 		action: toggleItalic,
-		className: "fa fa-italic",
+		className: "bs bs-italic",
 		title: "Italic",
+		default: true
+	},
+	"underline": {
+		name: "underline",
+		action: toggleUnderline,
+		className: "bs bs-underline",
+		title: "Underline",
 		default: true
 	},
 	"strikethrough": {
 		name: "strikethrough",
 		action: toggleStrikethrough,
-		className: "fa fa-strikethrough",
-		title: "Strikethrough"
+		className: "bs bs-strikethrough",
+		title: "Strikethrough",
+		default: true
 	},
 	"heading": {
 		name: "heading",
 		action: toggleHeadingSmaller,
-		className: "fa fa-header",
+		className: "bs bs-header",
 		title: "Heading",
 		default: true
 	},
 	"heading-smaller": {
 		name: "heading-smaller",
 		action: toggleHeadingSmaller,
-		className: "fa fa-header fa-header-x fa-header-smaller",
+		className: "bs bs-header",
 		title: "Smaller Heading"
 	},
 	"heading-bigger": {
 		name: "heading-bigger",
 		action: toggleHeadingBigger,
-		className: "fa fa-header fa-header-x fa-header-bigger",
+		className: "bs bs-header",
 		title: "Bigger Heading"
 	},
 	"heading-1": {
 		name: "heading-1",
 		action: toggleHeading1,
-		className: "fa fa-header fa-header-x fa-header-1",
+		className: "bs bs-header",
 		title: "Big Heading"
 	},
 	"heading-2": {
 		name: "heading-2",
 		action: toggleHeading2,
-		className: "fa fa-header fa-header-x fa-header-2",
+		className: "bs bs-header",
 		title: "Medium Heading"
 	},
 	"heading-3": {
 		name: "heading-3",
 		action: toggleHeading3,
-		className: "fa fa-header fa-header-x fa-header-3",
+		className: "bs bs-header",
 		title: "Small Heading"
 	},
 	"separator-1": {
@@ -16119,35 +16149,37 @@ var toolbarBuiltInButtons = {
 	"code": {
 		name: "code",
 		action: toggleCodeBlock,
-		className: "fa fa-code",
-		title: "Code"
+		className: "bs bs-embed",
+		title: "Code",
+		default: true
 	},
 	"quote": {
 		name: "quote",
 		action: toggleBlockquote,
-		className: "fa fa-quote-left",
+		className: "bs bs-quotes",
 		title: "Quote",
 		default: true
 	},
 	"unordered-list": {
 		name: "unordered-list",
 		action: toggleUnorderedList,
-		className: "fa fa-list-ul",
+		className: "bs bs-list",
 		title: "Generic List",
 		default: true
 	},
 	"ordered-list": {
 		name: "ordered-list",
 		action: toggleOrderedList,
-		className: "fa fa-list-ol",
+		className: "bs bs-list-numbered",
 		title: "Numbered List",
 		default: true
 	},
 	"clean-block": {
 		name: "clean-block",
 		action: cleanBlock,
-		className: "fa fa-eraser fa-clean-block",
-		title: "Clean block"
+		className: "bs bs-clear-formatting",
+		title: "Clean block",
+		default: true
 	},
 	"separator-2": {
 		name: "separator-2"
@@ -16155,28 +16187,30 @@ var toolbarBuiltInButtons = {
 	"link": {
 		name: "link",
 		action: drawLink,
-		className: "fa fa-link",
+		className: "bs bs-link",
 		title: "Create Link",
 		default: true
 	},
 	"image": {
 		name: "image",
 		action: drawImage,
-		className: "fa fa-picture-o",
+		className: "bs bs-image",
 		title: "Insert Image",
 		default: true
 	},
 	"table": {
 		name: "table",
 		action: drawTable,
-		className: "fa fa-table",
-		title: "Insert Table"
+		className: "bs bs-table",
+		title: "Insert Table",
+		default: true
 	},
 	"horizontal-rule": {
 		name: "horizontal-rule",
 		action: drawHorizontalRule,
-		className: "fa fa-minus",
-		title: "Insert Horizontal Line"
+		className: "bs bs-minus",
+		title: "Insert Horizontal Line",
+		default: true
 	},
 	"separator-3": {
 		name: "separator-3"
@@ -16184,21 +16218,21 @@ var toolbarBuiltInButtons = {
 	"preview": {
 		name: "preview",
 		action: togglePreview,
-		className: "fa fa-eye no-disable",
+		className: "bs bs-eye no-disable",
 		title: "Toggle Preview",
 		default: true
 	},
 	"side-by-side": {
 		name: "side-by-side",
 		action: toggleSideBySide,
-		className: "fa fa-columns no-disable no-mobile",
+		className: "bs bs-columns no-disable no-mobile",
 		title: "Toggle Side by Side",
 		default: true
 	},
 	"fullscreen": {
 		name: "fullscreen",
 		action: toggleFullScreen,
-		className: "fa fa-arrows-alt no-disable no-mobile",
+		className: "bs bs-expand no-disable no-mobile",
 		title: "Toggle Fullscreen",
 		default: true
 	},
@@ -16208,9 +16242,9 @@ var toolbarBuiltInButtons = {
 	"guide": {
 		name: "guide",
 		action: "https://simplemde.com/markdown-guide",
-		className: "fa fa-question-circle",
+		className: "bs bs-question-circle",
 		title: "Markdown Guide",
-		default: true
+		default: false
 	},
 	"separator-5": {
 		name: "separator-5"
@@ -16218,14 +16252,16 @@ var toolbarBuiltInButtons = {
 	"undo": {
 		name: "undo",
 		action: undo,
-		className: "fa fa-undo no-disable",
-		title: "Undo"
+		className: "bs bs-undo no-disable",
+		title: "Undo",
+		default: true
 	},
 	"redo": {
 		name: "redo",
 		action: redo,
-		className: "fa fa-repeat no-disable",
-		title: "Redo"
+		className: "bs bs-redo no-disable",
+		title: "Redo",
+		default: true
 	}
 };
 
@@ -16244,7 +16280,8 @@ var promptTexts = {
 var blockStyles = {
 	"bold": "**",
 	"code": "```",
-	"italic": "*"
+	"italic": "*",
+	"underline": ["<u>", "</u>"]
 };
 
 /**
@@ -16871,6 +16908,7 @@ SimpleMDE.prototype.value = function(val) {
 SimpleMDE.toggleBold = toggleBold;
 SimpleMDE.toggleItalic = toggleItalic;
 SimpleMDE.toggleStrikethrough = toggleStrikethrough;
+SimpleMDE.toggleUnderline = toggleUnderline;
 SimpleMDE.toggleBlockquote = toggleBlockquote;
 SimpleMDE.toggleHeadingSmaller = toggleHeadingSmaller;
 SimpleMDE.toggleHeadingBigger = toggleHeadingBigger;
@@ -16899,6 +16937,9 @@ SimpleMDE.prototype.toggleBold = function() {
 };
 SimpleMDE.prototype.toggleItalic = function() {
 	toggleItalic(this);
+};
+SimpleMDE.prototype.toggleUnderline = function () {
+	toggleUnderline(this);
 };
 SimpleMDE.prototype.toggleStrikethrough = function() {
 	toggleStrikethrough(this);
@@ -17016,4 +17057,13 @@ SimpleMDE.prototype.toTextArea = function() {
 
 module.exports = SimpleMDE;
 },{"./codemirror/tablist":19,"codemirror":10,"codemirror-spell-checker":4,"codemirror/addon/display/fullscreen.js":5,"codemirror/addon/display/placeholder.js":6,"codemirror/addon/edit/continuelist.js":7,"codemirror/addon/mode/overlay.js":8,"codemirror/addon/selection/mark-selection.js":9,"codemirror/mode/gfm/gfm.js":11,"codemirror/mode/markdown/markdown.js":12,"codemirror/mode/xml/xml.js":14,"marked":17}]},{},[20])(20)
+});
+
+$( document ).ready(function() {
+    $(target).find("[data-provide='textEditor']").each((_, elem) => {
+        var element = $(elem);
+        var simplemde = new SimpleMDE({
+            element: elem
+        });
+    });
 });
