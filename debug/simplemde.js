@@ -1979,7 +1979,7 @@ module.exports = CodeMirrorSpellChecker;
                                   width: wrap.style.width, height: wrap.style.height};
     wrap.style.width = "";
     wrap.style.height = "auto";
-    wrap.className += " CodeMirror-fullscreen";
+    wrap.className += " fullscreen";
     document.documentElement.style.overflow = "hidden";
     cm.refresh();
   }
