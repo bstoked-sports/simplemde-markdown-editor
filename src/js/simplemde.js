@@ -188,7 +188,7 @@ var saved_overflow = "";
 function toggleFullScreen(editor) {
 	// Set fullscreen
 	var cm = editor.codemirror;
-	cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+	cm.setOption(" fullScreen", !cm.getOption("fullScreen"));
 
 
 	// Prevent scrolling on body during fullscreen active
