@@ -17029,12 +17029,3 @@ SimpleMDE.prototype.toTextArea = function() {
 module.exports = SimpleMDE;
 },{"./codemirror/tablist":19,"codemirror":10,"codemirror-spell-checker":4,"codemirror/addon/display/fullscreen.js":5,"codemirror/addon/display/placeholder.js":6,"codemirror/addon/edit/continuelist.js":7,"codemirror/addon/mode/overlay.js":8,"codemirror/addon/selection/mark-selection.js":9,"codemirror/mode/gfm/gfm.js":11,"codemirror/mode/markdown/markdown.js":12,"codemirror/mode/xml/xml.js":14,"marked":17}]},{},[20])(20)
 });
-
-$(document).ready(function() {
-    $(this).find("[data-provide='simplemde']").each(function() {
-        var element = $(this);
-        var simplemde = new SimpleMDE({
-            element: this
-        });
-    });
-});
