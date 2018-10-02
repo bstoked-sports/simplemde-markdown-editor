@@ -163,6 +163,8 @@ function getState(cm, pos) {
 			ret.italic = true;
 		} else if(data === "quote") {
 			ret.quote = true;
+		} else if(data === "underline") {
+			ret.underline = true;
 		} else if(data === "strikethrough") {
 			ret.strikethrough = true;
 		} else if(data === "comment") {

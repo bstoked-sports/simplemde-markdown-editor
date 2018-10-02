@@ -11435,6 +11435,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     linkHref: "string",
     em: "em",
     strong: "strong",
+    underline: "underline",
     strikethrough: "strikethrough"
   };
 
@@ -11479,6 +11480,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     state.strong = false;
     // Reset strikethrough state
     state.strikethrough = false;
+    // Reset strikethrough state
+    state.underline = false;
     // Reset state.quote
     state.quote = 0;
     // Reset state.indentedCode
@@ -11674,6 +11677,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     } else { // Only apply inline styles to non-url text
       if (state.strong) { styles.push(tokenTypes.strong); }
       if (state.em) { styles.push(tokenTypes.em); }
+      if (state.underline) { styles.push(tokenTypes.underline); }
       if (state.strikethrough) { styles.push(tokenTypes.strikethrough); }
       if (state.linkText) { styles.push(tokenTypes.linkText); }
       if (state.code) { styles.push(tokenTypes.code); }
